@@ -1,0 +1,7 @@
+note over selain:
+Selain suorittaa js-koodia, joka lisää näytettävän sivun listaan uuden elementin
+lomakkeen kentän perusteella ja lähettää ko. tiedot palvelimelle
+
+selain->palvelin: HTTP POST https://fullstack-exampleapp.herokuapp.com/new_note_spa
+palvelin->selain: 201:Created
+
