@@ -11,7 +11,7 @@ app.use(cors())
 morgan.token('json-body', req => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :json-body'))
 
-app.get('/info', (req, resp) => {
+app.get('/info', (req, resp, next) => {
   Person.find({})
     .then(persons => {
       const str = `<p>Phonebook has info for ${persons.length} people</p>` +
@@ -23,11 +23,11 @@ app.get('/info', (req, resp) => {
 
 app.get('/api/persons', (req, resp, next) => {
   Person.find({})
-    .then(persons => resp.json(persons.map(person=> person.toJSON())))
+    .then(persons => resp.json(persons.map(person => person.toJSON())))
     .catch(error => next(error))
 })
 
-app.get('/api/persons/:id', (req, resp) => {
+app.get('/api/persons/:id', (req, resp, next) => {
   Person.findById(req.params.id)
     .then(person => {
       if (person)
@@ -35,56 +35,38 @@ app.get('/api/persons/:id', (req, resp) => {
       else
         resp.status(404).end()
     })
+    .catch(err => next(err)) })
+
+app.post('/api/persons', (req, resp, next) => {
+  const person = new Person({ name: req.body.name, number: req.body.number })
+  person.save()
+    .then(savedPerson => resp.json(savedPerson.toJSON()))
     .catch(err => next(err))
 })
 
-const returnWithError = (resp, str) => resp.status(400).json({ error: str })
-
-app.post('/api/persons', (req, resp) => {
-  if (req.body === undefined) return returnWithError(resp, 'content missing')
-
+app.put('/api/persons/:id', (req, resp, next) => {
   const person = { name: req.body.name, number: req.body.number }
 
-  if (!person.name) return returnWithError(resp, 'name missing')
-  if (!person.number) return returnWithError(resp, 'number missing')
-
   Person
-    .find({ name: person.name })
-    .then(result => {
-      if (result.length>0) {
-        Person.findByIdAndUpdate(result[0].toJSON().id, person, { new: true })
-          .then(updatedPerson => resp.json(updatedPerson.toJSON()))
-      } else {
-        const newPerson = new Person(person)
-        newPerson.save().then(savedPerson => resp.json(savedPerson.toJSON()))
-      }
-    })
-    .catch(err => next(err))
-})
-
-app.put('/api/persons/:id', (req, resp) => {
-  if (req.body === undefined) return returnWithError(resp, 'content missing')
-
-  const person = { name: req.body.name, number: req.body.number }
-
-  if (!person.name) return returnWithError(resp, 'name missing')
-  if (!person.number) return returnWithError(resp, 'number missing')
-
-  Person
-    .findByIdAndUpdate(req.params.id, person, { new: true })
+    .findByIdAndUpdate(req.params.id, person, { new: true, runValidators: true })
     .then(updatedPerson => resp.json(updatedPerson.toJSON()))
     .catch(err => next(err))
 })
 
 app.delete('/api/persons/:id', (req, resp) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(result => resp.status(204).end())
+    .then(() => resp.status(204).end())
 })
 
 const errorHandler = (err, req, resp, next) => {
   console.log(err.message)
+  console.log(err.name)
   if (err.name === 'CastError') {
-    return (response.status(400).send({ error: 'malformatted id' }))
+    return (resp.status(400).send({ error: 'malformatted id' }))
+  } else if (err.name === 'ValidationError') {
+    return resp.status(400).send({ error: err.message })
+  } else if (err.name === 'MongoError') {
+    return resp.status(400).send({ error: err.message })
   }
   next(err)
 }
@@ -94,6 +76,6 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
 

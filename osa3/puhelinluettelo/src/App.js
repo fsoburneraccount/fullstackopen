@@ -39,11 +39,19 @@ const App = () => {
     setTimeout(() => { setMessage(null) }, 5000)
   }
 
-  const handleDeleted = (person) => {
-    setErrorMessage(`Information of ${person.name} does not exist on the server`)
+  const showError = msg => {
+    setErrorMessage(msg)
     setTimeout(() => { setErrorMessage(null) }, 5000)
+  }
+
+  const handleDeleted = person => {
+    showError(`Information of ${person.name} does not exist on the server`)
     setPersons(persons.filter(p => p.name !== person.name))
   }
+
+  const handleBackendError = (err) => showError(err.error)
+
+  const updateError = err => showError(err.toString())
 
   const addPerson = (event) => {
     event.preventDefault()
@@ -61,6 +69,7 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           common("Added", returnedPerson)
         })
+        .catch(err => handleBackendError(err.response.data))
     } else {
       const confirmationDialogue = `${newPerson.name} is already added to phonebook, ` +
         `replace the old number with a new one?`
@@ -72,7 +81,7 @@ const App = () => {
             setPersons(persons.map(p => p.id === newPersonId ? returnedPerson : p))
             common("Updated", returnedPerson)
           })
-          .catch(error => handleDeleted(newPerson))
+          .catch(error => updateError(error))
       }
     }
   }
@@ -86,7 +95,7 @@ const App = () => {
           setPersons(persons.filter(p => p.id !== person.id))
           showMsg("Deleted", person)
         })
-        .catch(error => handleDeleted(person))
+        .catch(err => handleDeleted(err))
     }
   }
 
