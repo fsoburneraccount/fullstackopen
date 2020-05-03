@@ -1,0 +1,24 @@
+{
+  "name": "blogilista",
+  "version": "0.0.1",
+  "description": "blogilista",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "eslint . && nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "author": "Markus Paasiniemi",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mongoose": "^5.9.11"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "nodemon": "^2.0.3"
+  }
+}

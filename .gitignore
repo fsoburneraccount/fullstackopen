@@ -1,2 +1,4 @@
 temp/*
 *.swp
+node_modules
+.env
