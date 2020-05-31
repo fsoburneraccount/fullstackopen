@@ -7,7 +7,7 @@ import { Modal, Segment } from 'semantic-ui-react';
 
 import { useStateValue } from "../state";
 import { apiBaseUrl } from "../constants";
-import { Patient, Gender, Entry, HealthCheckRating } from '../types';
+import { Patient, Gender, Entry } from '../types';
 import { addPatient, addEntry } from '../state/reducer';
 import EntryDefails from './EntryDetails';
 import { assertNever } from "../utils";

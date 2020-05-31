@@ -26,7 +26,7 @@ export type Action =
 
 const addEntryToPatient = (p: Patient, e: Entry): Patient => {
   return { ...p, entries: p.entries.concat(e)};
-}
+};
 
 export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -84,4 +84,4 @@ export const setDiagnoses = (diagnoses: Diagnosis[]): Action => {
 };
 export const addEntry = (patientId: Patient['id'], entry: Entry): Action => {
   return { type: "ADD_ENTRY", payload: { patientId, entry }};
-}
+};
